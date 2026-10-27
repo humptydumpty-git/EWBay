@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1F4E79">
+<title>Erana Washing Bay</title>
+<style>
+:root{--navy:#1F4E79;--blue:#2E75B6;--light:#DDEBF7;--grey:#F2F2F2;--text:#243447;--red:#c0392b;--green:#1e8449;--amber:#d68910}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--grey);color:var(--text)}
+#app{display:none}body.in #app{display:block}
+header{background:var(--navy);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+header h1{margin:0;font-size:1.15rem;letter-spacing:1px}
+header small{opacity:.8;display:block}
+.who{display:flex;align-items:center;gap:8px;font-size:.85rem;flex-wrap:wrap}
+.who button{background:rgba(255,255,255,.18);border:0;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.8rem}
+nav{display:flex;overflow-x:auto;background:var(--blue);position:sticky;top:0;z-index:5}
+nav button{flex:1;min-width:88px;padding:12px 8px;border:0;background:none;color:#fff;font-size:.9rem;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.active{background:var(--navy);border-bottom-color:#fff;font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.card h2{margin:0 0 10px;font-size:1.05rem;color:var(--navy)}
+label{display:block;font-size:.8rem;font-weight:600;color:var(--navy);margin:8px 0 3px}
+input,select{width:100%;padding:10px;border:1px solid #b8c4d0;border-radius:6px;font-size:1rem;background:#fff}
+input[readonly]{background:var(--grey);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.svc{display:grid;grid-template-columns:auto 1fr 90px 90px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e3e8ee}
+.svc input[type=checkbox]{width:22px;height:22px}
+.svc .price{font-size:.9rem;text-align:right}
+.svc input[type=number]{padding:6px}
+.total{background:var(--navy);color:#fff;border-radius:8px;padding:12px;margin-top:10px;display:flex;justify-content:space-between;font-size:1.2rem;font-weight:700}
+.total.bal{background:var(--blue);font-size:1rem}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{flex:1;min-width:110px;padding:13px;border:0;border-radius:8px;font-size:1rem;font-weight:700;color:#fff;cursor:pointer}
+.b1{background:var(--navy)}.b2{background:#7f7f7f}.b3{background:var(--blue)}.b4{background:var(--red)}.b5{background:var(--green)}.b6{background:var(--amber)}
+.btn.sm{flex:none;min-width:0;padding:6px 10px;font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--blue);color:#fff;padding:8px;text-align:left;position:sticky;top:0}
+td{padding:7px 8px;border-bottom:1px solid #e3e8ee}
+tr:nth-child(even) td{background:#f7fafd}
+.scroll{overflow-x:auto;max-height:60vh}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border-left:5px solid var(--blue);border-radius:8px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.kpi span{display:block;font-size:.75rem;color:#5d6d7e}.kpi b{font-size:1.2rem;color:var(--navy)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.charts .wide{grid-column:1/-1}
+canvas{width:100%;height:240px}
+.tag{padding:2px 8px;border-radius:10px;font-size:.75rem;color:#fff;white-space:nowrap}
+.Paid{background:var(--green)}.Unpaid{background:var(--red)}.Partial{background:var(--amber)}.Admin{background:var(--navy)}.Staff{background:#7f7f7f}.Temp{background:var(--amber)}.Active{background:var(--green)}
+.page{display:none}.page.active{display:block}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:400}
+.seg{display:flex;gap:0;margin-top:8px}.seg button{flex:1;padding:9px;border:1px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer;font-weight:600}
+.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0}.seg button.on{background:var(--blue);color:#fff}
+.overlay{position:fixed;inset:0;background:linear-gradient(160deg,var(--navy),var(--blue));display:none;align-items:center;justify-content:center;z-index:300;padding:16px;overflow:auto}
+.lbox{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:380px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.lbox h1{margin:0;text-align:center;color:var(--navy);font-size:1.3rem;letter-spacing:1px}
+.lbox small{display:block;text-align:center;color:#7f8c8d;margin-bottom:8px}
+.pw{display:flex;gap:6px}.pw button{border:1px solid #b8c4d0;background:var(--grey);border-radius:6px;padding:0 10px;cursor:pointer;font-size:.8rem}
+.err{color:var(--red);font-size:.85rem;min-height:1.1em;margin-top:6px}
+.hint{font-size:.78rem;color:#5d6d7e;text-align:center;margin:12px 0 0}
+.cred{background:#fff8e1;border:1px dashed var(--amber);border-radius:8px;padding:10px;margin-top:10px;font-size:.9rem;display:none}
+.funds{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:12px}
+.fund{border-radius:12px;padding:16px;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.fund.e{background:linear-gradient(135deg,#2E75B6,#1F4E79)}.fund.p{background:linear-gradient(135deg,#1e8449,#145a32)}.fund.s{background:linear-gradient(135deg,#6c7a89,#2c3e50)}
+.fund span{display:block;font-size:.78rem;opacity:.92;letter-spacing:.5px}.fund b{display:block;font-size:1.7rem;margin:4px 0}.fund small{opacity:.92}
+.tag.Void{background:#7f7f7f}.tag.cat{background:#566573}
+.note{font-size:.8rem;color:#5d6d7e;margin:0 0 10px}
+.money-neg{color:var(--red)}
+#receipt{display:none}
+@media print{
+ body *{visibility:hidden}
+ #receipt,#receipt *{visibility:visible}
+ #receipt{display:block;position:absolute;left:0;top:0;width:76mm;font-family:Consolas,monospace;font-size:11px;color:#000;padding:2mm}
+ @page{size:80mm auto;margin:0}
+}
+#receipt h3{text-align:center;margin:0}#receipt .c{text-align:center}
+#receipt .r{display:flex;justify-content:space-between}
+#receipt hr{border:0;border-top:1px dashed #000}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login" class="overlay">
+ <form class="lbox" id="lForm" autocomplete="on">
+  <h1>ERANA WASHING BAY</h1><small>Management System - please log in</small>
+  <label>Username</label><input id="lUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+  <label>Password</label><div class="pw"><input id="lPass" type="password" autocomplete="current-password"><button type="button" data-eye="lPass">Show</button></div>
+  <div class="err" id="lErr"></div>
+  <button class="btn b1" id="lGo" type="submit" style="width:100%;margin-top:10px">LOG IN</button>
+  <p class="hint" id="lHint"></p>
+ </form>
+</div>
+
+<!-- ============ CHANGE PASSWORD ============ -->
+<div id="pwbox" class="overlay">
+ <form class="lbox" id="pForm">
+  <h1 id="pTitle">Change Password</h1><small id="pSub"></small>
+  <div id="pCurWrap"><label>Current Password</label><div class="pw"><input id="pCur" type="password" autocomplete="current-password"><button type="button" data-eye="pCur">Show</button></div></div>
+  <label>New Password (min 6 characters)</label><div class="pw"><input id="pNew" type="password" autocomplete="new-password"><button type="button" data-eye="pNew">Show</button></div>
+  <label>Confirm New Password</label><input id="pNew2" type="password" autocomplete="new-password">
+  <div class="err" id="pErr"></div>
+  <div class="btns"><button class="btn b1" type="submit">SAVE PASSWORD</button><button class="btn b2" type="button" id="pCancel">CANCEL</button></div>
+ </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+<header>
+ <div><h1>ERANA WASHING BAY</h1><small>Management System</small></div>
+ <div class="who"><span id="whoTxt"></span><button id="btnMyPw">Password</button><button id="btnLogout">Log out</button></div>
+</header>
+<nav id="nav">
+ <button data-p="home" class="active">Home</button>
+ <button data-p="entry">New Entry</button>
+ <button data-p="records">Records</button>
+ <button data-p="fin">Expenses</button>
+ <button data-p="dash" data-admin="1">Reports</button>
+ <button data-p="prices" data-admin="1">Price List</button>
+ <button data-p="users" data-admin="1">Users</button>
+ <button data-p="audit" data-admin="1">Audit Log</button>
+ <button data-p="data" data-admin="1">Backup</button>
+</nav>
+<main>
+
+<!-- HOME -->
+<section class="page active" id="home">
+ <div class="kpis" id="homeKpi"></div>
+ <div class="card"><h2>Income &amp; Expenses</h2>
+  <p class="note" id="homeRule"></p>
+  <div class="funds" id="homeFunds"></div>
+  <div class="btns"><button class="btn b1" data-goto="entry">NEW ENTRY</button><button class="btn b3" data-goto="fin">RECORD EXPENSE</button><button class="btn b5" id="homeSplit">END DAY: SPLIT TODAY'S TAKINGS</button></div>
+ </div>
+</section>
+
+<!-- ENTRY -->
+<section class="page" id="entry">
+ <div class="card"><h2>New Entry</h2>
+  <div class="grid">
+   <div><label>Date</label><input id="fDate" readonly></div>
+   <div><label>Receipt No</label><input id="fRcpt" readonly></div>
+   <div><label>Customer Name (optional)</label><input id="fName"></div>
+   <div><label>Phone (optional)</label><input id="fPhone" type="tel"></div>
+   <div><label>Vehicle Type</label><select id="fVtype"><option value="">-- select --</option></select></div>
+   <div><label>Number Plate</label><input id="fPlate" style="text-transform:uppercase"></div>
+   <div><label>Attendant Name</label><input id="fAtt" list="attList"><datalist id="attList"></datalist></div>
+   <div><label>Number of Vehicles</label><input id="fNum" type="number" min="1" value="1"></div>
+  </div>
+  <label>Services Rendered</label>
+  <div id="svcBox"></div>
+  <div class="svc" style="grid-template-columns:1fr 90px 90px"><select id="fCombo"><option value="">-- Combo package (optional) --</option></select><input id="fComboP" type="number" min="0" step="0.01" placeholder="custom"><div class="price" id="comboL">0.00</div></div>
+  <div class="grid">
+   <div><label>Payment Status</label><select id="fStatus"><option value="">-- select --</option><option>Paid</option><option>Unpaid</option><option>Partial</option></select></div>
+   <div><label>Amount Paid (if Partial)</label><input id="fPaid" type="number" min="0" step="0.01"></div>
+  </div>
+  <div class="total"><span>TOTAL COST (GHS)</span><span id="tTotal">0.00</span></div>
+  <div class="total bal"><span>BALANCE DUE (GHS)</span><span id="tBal">0.00</span></div>
+  <div class="btns">
+   <button class="btn b1" id="btnSubmit">SUBMIT</button>
+   <button class="btn b2" id="btnClear">CLEAR</button>
+   <button class="btn b3" id="btnPrintLast">PRINT RECEIPT</button>
+  </div>
+ </div>
+</section>
+
+<!-- RECORDS -->
+<section class="page" id="records">
+ <div class="card"><h2>Records</h2>
+  <div class="grid"><div><label>Search (plate, receipt, name, attendant)</label><input id="rSearch"></div>
+  <div><label>Status</label><select id="rStatus"><option value="">All</option><option>Paid</option><option>Unpaid</option><option>Partial</option></select></div>
+  <div><label>From</label><input type="date" id="rFrom"></div><div><label>To</label><input type="date" id="rTo"></div></div>
+  <div class="btns" data-adminonly="1"><button class="btn b5" id="rXlsx">EXPORT THESE RECORDS TO EXCEL</button></div>
+  <div class="scroll" style="margin-top:10px"><table><thead><tr><th>Date</th><th>Receipt</th><th>Vehicle</th><th>Plate</th><th>Services</th><th>Qty</th><th>Total</th><th>Status</th><th>Balance</th><th>Attendant</th><th></th></tr></thead><tbody id="rBody"></tbody></table></div>
+ </div>
+</section>
+
+<!-- REPORTS -->
+<section class="page" id="dash">
+ <div class="kpis" id="kpiToday"></div>
+ <div class="card"><h2>Report Period</h2>
+  <div class="grid"><div><label>From Date</label><input type="date" id="dFrom"></div><div><label>To Date</label><input type="date" id="dTo"></div></div>
+  <div class="seg" id="segRange"><button data-r="today">Today</button><button data-r="month" class="on">This Month</button><button data-r="year">This Year</button><button data-r="all">All Time</button></div>
+  <label>Group the trend chart by</label>
+  <div class="seg" id="segGroup"><button data-g="day" class="on">Daily</button><button data-g="month">Monthly</button><button data-g="year">Yearly</button></div>
+  <div class="btns"><button class="btn b5" id="dXlsx">DOWNLOAD EXCEL REPORT (.xlsx)</button></div>
+  <p style="font-size:.78rem;color:#5d6d7e;margin:8px 0 0">The Excel file has sheets: Summary, Daily, Monthly, Yearly, By Service, By Vehicle, By Attendant, Income &amp; Expenses, Expenses, Fund Ledger, Records - all for the period selected above.</p>
+ </div>
+ <div class="kpis" id="kpiRange"></div>
+ <div class="kpis" id="kpiFin"></div>
+ <div class="charts">
+  <div class="card wide"><h2 id="trendT">Sales Trend (GHS)</h2><canvas id="cTrend"></canvas></div>
+  <div class="card"><h2>Sales by Weekday (GHS)</h2><canvas id="cWk"></canvas></div>
+  <div class="card"><h2>Sales by Service (GHS)</h2><canvas id="cSvc"></canvas></div>
+  <div class="card"><h2>Sales by Vehicle Type (top 8)</h2><canvas id="cVeh"></canvas></div>
+  <div class="card"><h2>Sales by Attendant (top 8)</h2><canvas id="cAtt"></canvas></div>
+  <div class="card"><h2>Paid vs Unpaid vs Partial</h2><canvas id="cPay"></canvas></div>
+  <div class="card"><h2>Expenses by Category (GHS)</h2><canvas id="cExp"></canvas></div>
+  <div class="card"><h2>Cash In vs Expenses vs Profit (GHS)</h2><canvas id="cFin"></canvas></div>
+ </div>
+</section>
+
+<!-- PRICES -->
+<section class="page" id="prices">
+ <div class="card"><h2>Prices by Vehicle Type (GHS)</h2><div id="pBox"></div></div>
+ <div class="card"><h2>Combo Packages</h2><p style="font-size:.8rem;margin-top:0">Tick included services. Price = sum - discount.</p><div id="cBox"></div>
+  <div class="btns"><button class="btn b1" id="pSave">SAVE PRICES</button></div></div>
+</section>
+
+<!-- USERS -->
+<section class="page" id="users">
+ <div class="card"><h2>Add User</h2>
+  <div class="grid">
+   <div><label>Full Name</label><input id="uName"></div>
+   <div><label>Username (letters, numbers . _ -)</label><input id="uUser" autocapitalize="none" spellcheck="false"></div>
+   <div><label>Temporary Password</label><div class="pw"><input id="uPass" type="text" autocomplete="off"><button type="button" id="uGen">Generate</button></div></div>
+   <div><label>Role</label><select id="uRole"><option value="0">Staff (entries &amp; records)</option><option value="1">Admin (full access)</option></select></div>
+  </div>
+  <div class="err" id="uErr"></div>
+  <div class="btns"><button class="btn b1" id="uAdd">ADD USER</button></div>
+  <div class="cred" id="uCred"></div>
+  <p style="font-size:.78rem;color:#5d6d7e;margin-bottom:0">The new user must choose their own password the first time they log in.</p>
+ </div>
+ <div class="card"><h2>All Users</h2>
+  <div class="scroll"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Password</th><th>Actions</th></tr></thead><tbody id="uBody"></tbody></table></div>
+ </div>
+</section>
+
+<!-- EXPENSES & PROFIT -->
+<section class="page" id="fin">
+ <div class="funds" id="finFunds"></div>
+ <div class="card"><h2>Record Expense</h2>
+  <p class="note" id="finRule"></p>
+  <div class="grid">
+   <div><label>Category</label><select id="eCat"></select></div>
+   <div><label>Amount (GHS)</label><input id="eAmt" type="number" min="0" step="0.01" inputmode="decimal"></div>
+   <div><label>Description (what was bought / paid for)</label><input id="eDesc"></div>
+   <div><label>Paid to (optional)</label><input id="ePaid"></div>
+  </div>
+  <div class="err" id="eErr"></div>
+  <div class="btns"><button class="btn b4" id="eAdd">RECORD EXPENSE</button><button class="btn b5" id="finSplit">END DAY: SPLIT TODAY'S TAKINGS</button></div>
+ </div>
+ <div class="card"><h2>Expenses</h2>
+  <div class="grid"><div><label>From</label><input type="date" id="efFrom"></div><div><label>To</label><input type="date" id="efTo"></div></div>
+  <div class="scroll" style="margin-top:10px"><table><thead><tr><th>Date</th><th>Ref</th><th>Category</th><th>Description</th><th>Paid to</th><th>Amount</th><th>By</th><th>Status</th><th></th></tr></thead><tbody id="eBody"></tbody></table></div>
+  <p style="font-weight:700;color:var(--navy);margin:10px 0 0" id="eTotal"></p>
+ </div>
+ <div class="card" data-adminonly="1"><h2>Daily Income &amp; Expenses Summary</h2>
+  <div class="scroll"><table><thead><tr><th>Date</th><th>Cash collected</th><th>To Expenses</th><th>To Profit</th><th>Spent</th><th>Expenses balance</th><th>Profit balance</th></tr></thead><tbody id="fdBody"></tbody></table></div>
+ </div>
+ <div class="card" data-adminonly="1"><h2>Fund Ledger (every credit and debit)</h2>
+  <div class="scroll"><table><thead><tr><th>#</th><th>Credited</th><th>Sales day</th><th>Fund</th><th>Type</th><th>Amount</th><th>Reference / note</th><th>By</th></tr></thead><tbody id="flBody"></tbody></table></div>
+ </div>
+ <div class="card" data-adminonly="1"><h2>Split Settings</h2>
+  <p class="note" id="setNote"></p>
+  <div class="grid">
+   <div><label>Expenses share (%) - the rest goes to Profit</label><input id="sPct" type="number" min="0" max="100" step="1"></div>
+   <div><label>&nbsp;</label><button class="btn b1" id="sPctBtn" style="width:100%">SAVE SPLIT</button></div>
+   <div><label>Include earlier sales from date</label><input id="sStart" type="date"></div>
+   <div><label>&nbsp;</label><button class="btn b3" id="sStartBtn" style="width:100%">INCLUDE FROM THIS DATE</button></div>
+  </div>
+ </div>
+</section>
+
+<!-- AUDIT LOG -->
+<section class="page" id="audit">
+ <div class="card"><h2>Audit Log</h2>
+  <p class="note">Every login, sale, payment, expense, price change and user change is recorded here with the user and time. The app has no way to edit or delete entries. Each entry is chained to the one before it, so "Verify" detects altered or removed entries.</p>
+  <div class="grid">
+   <div><label>Search</label><input id="aSearch" placeholder="user, action, receipt..."></div>
+   <div><label>User</label><select id="aUser"></select></div>
+   <div><label>Category</label><select id="aCat"><option value="">All</option><option>Auth</option><option>Sales</option><option>Finance</option><option>Users</option><option>Prices</option><option>Data</option></select></div>
+   <div></div>
+   <div><label>From</label><input type="date" id="aFrom"></div><div><label>To</label><input type="date" id="aTo"></div>
+  </div>
+  <div class="btns"><button class="btn b3" id="aVerify">VERIFY INTEGRITY</button><button class="btn b5" id="aXlsx">EXPORT TO EXCEL</button></div>
+  <p style="font-weight:700;color:var(--navy);margin:10px 0 0" id="aCount"></p>
+  <div class="scroll" style="margin-top:6px"><table><thead><tr><th>Time</th><th>User</th><th>Role</th><th>Category</th><th>Action</th><th>Details</th></tr></thead><tbody id="aBody"></tbody></table></div>
+ </div>
+</section>
+
+<!-- BACKUP -->
+<section class="page" id="data">
+ <div class="card"><h2>Backup &amp; Export</h2>
+  <p style="font-size:.85rem">Data (sales, prices and users) is saved in this browser on this device only. Back up often, and before clearing browser data.</p>
+  <div class="btns"><button class="btn b1" id="xJson">DOWNLOAD FULL BACKUP</button><button class="btn b3" id="xCsv">EXPORT ALL RECORDS (CSV)</button></div>
+  <label>Restore from backup file (replaces ALL data, including users)</label><input type="file" id="xFile" accept=".json">
+  <p style="font-size:.78rem;color:#777">Tip: to use the same sales and users on another device, download a backup here and restore it on that device.</p>
+ </div>
+</section>
+</main>
+</div>
+
+<div id="receipt"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SERVICES=["BLOWING","BODY","ENGINE","UNDER","INTERIOR"];
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $=id=>document.getElementById(id);
+const fmt=n=>(Number(n)||0).toLocaleString("en-GH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const todayStr=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sum=(a,f)=>a.reduce((s,r)=>s+f(r),0);
+
+/* ================= SHA-256 (pure JS, works on http, https and file://) ================= */
+const K256=new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+function sha256(msg){
+ const bytes=new TextEncoder().encode(msg),l=bytes.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);
+ m.set(bytes);m[l]=0x80;const dv=new DataView(m.buffer);
+ dv.setUint32(n-8,Math.floor(l*8/4294967296));dv.setUint32(n-4,(l*8)>>>0);
+ let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ const w=new Uint32Array(64);
+ for(let i=0;i<n;i+=64){
+  for(let t=0;t<16;t++)w[t]=dv.getUint32(i+t*4);
+  for(let t=16;t<64;t++){const a=w[t-15],c=w[t-2];
+   const s0=((a>>>7)|(a<<25))^((a>>>18)|(a<<14))^(a>>>3),s1=((c>>>17)|(c<<15))^((c>>>19)|(c<<13))^(c>>>10);
+   w[t]=(w[t-16]+s0+w[t-7]+s1)>>>0}
+  let [a,b,c,d,e,f,g,hh]=h;
+  for(let t=0;t<64;t++){
+   const S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7)),ch=(e&f)^(~e&g),t1=(hh+S1+ch+K256[t]+w[t])>>>0;
+   const S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10)),mj=(a&b)^(a&c)^(b&c),t2=(S0+mj)>>>0;
+   hh=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0}
+  h=[h[0]+a,h[1]+b,h[2]+c,h[3]+d,h[4]+e,h[5]+f,h[6]+g,h[7]+hh].map(x=>x>>>0)}
+ return h.map(x=>x.toString(16).padStart(8,"0")).join("");
+}
+const newSalt=()=>{const a=new Uint8Array(12);(crypto.getRandomValues?crypto.getRandomValues(a):a.forEach((_,i)=>a[i]=Math.random()*256));return Array.from(a,x=>x.toString(16).padStart(2,"0")).join("")};
+function hashPw(pw,salt){let h=salt+":"+pw;for(let i=0;i<3000;i++)h=sha256(h+salt);return h}
+function genPw(){const c="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789",a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,x=>c[x%c.length]).join("")}
+
+/* ================= STORAGE ================= */
+const KEY="eranaWB_v4";
+const N=null,NG="NEG";
+const CATS=[
+ ["Saloon Car",15,25,20,20,50],["4x4 / Van / Pickup",20,30,25,25,50],["Tundra / V8",20,30,25,25,50],
+ ["207 / 208 / Sprinter",30,35,25,25,N],["Ford",30,40,30,30,N],["508 / Coaster / Civilian",N,60,50,45,NG],
+ ["Luxurious Bus",N,100,90,90,NG],["Abossey Okai Macho",15,25,20,20,N],["Kia Bongo",20,35,30,30,N],
+ ["Kia Mighty",25,40,35,35,N],["Kia Rhino / Extra Large",N,50,40,40,N],["Cargo Truck (Small / Large)",N,100,90,90,N],
+ ["Extra Large Truck",N,100,90,90,N],["Fuel Tanker (Small & Large)",N,120,90,90,N],["Tipper 6-Wheeler",N,100,N,N,N],
+ ["Tipper 10-Wheeler",N,120,N,N,N],["Tipper 12-Wheeler / Back Hole",N,150,N,N,N],
+ ["Interior Only (Boot Carpet / Empty Interior / Dry Wash)",N,N,N,N,50],["Motor Bike",10,15,N,N,N],["Motor King",15,20,N,N,N],["Other",N,N,N,N,N]];
+const mkCat=a=>({name:a[0],p:{BLOWING:a[1],BODY:a[2],ENGINE:a[3],UNDER:a[4],INTERIOR:a[5]}});
+function defaultAdmin(){const salt=newSalt();return{u:"admin",name:"Administrator",admin:true,salt,hash:hashPw("admin123",salt),must:true,def:true,created:todayStr()}}
+function migrate(d){
+ d.led=d.led||[];d.exp=d.exp||[];d.audit=d.audit||[];
+ d.expSeq=d.expSeq||(1+Math.max(0,...d.exp.map(e=>parseInt(String(e.id).replace(/\D/g,""))||0)));
+ d.fin=d.fin||{pct:50,start:todayStr()};
+ d.records.forEach(r=>{if(!r.pay)r.pay=r.paid>0?[{d:r.date,a:r.paid,by:r.by||""}]:[]});
+ return d}
+function loadDB(){
+ let d=null;try{d=JSON.parse(localStorage.getItem(KEY)||"null")}catch{}
+ if(!d){let old={};try{old=JSON.parse(localStorage.getItem("eranaWB_v3")||"null")||{}}catch{}
+  d={cats:old.cats||CATS.map(mkCat),
+   combos:old.combos||[{name:"Full Body Washing",inc:["BODY","UNDER","INTERIOR"],disc:0},{name:"Full Service",inc:[...SERVICES],disc:0},{name:"Quick Wash",inc:["BLOWING","BODY"],disc:0},{name:"Engine & Under",inc:["ENGINE","UNDER"],disc:0},{name:"",inc:[],disc:0}],
+   records:old.records||[],last:old.last||"",users:[defaultAdmin()]}}
+ if(!d.users||!d.users.length)d.users=[defaultAdmin()];
+ if(!d.seq){d.seq=1+Math.max(0,...d.records.map(r=>parseInt(String(r.rcpt).replace(/\D/g,""))||0))}
+ return migrate(d)}
+let DB=loadDB();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){alert("Could not save data (browser storage full or blocked).")}};
+save();
+const toast=m=>{const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",2600)};
+const U=u=>DB.users.find(x=>x.u===u);
+const adminCount=()=>DB.users.filter(u=>u.admin).length;
+const r2=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
+
+/* ================= AUDIT LOG (append-only, hash-chained) ================= */
+const SYSTEM={u:"system",name:"System",r:"System"};
+function auditHash(prev,e){return sha256(prev+"|"+e.id+"|"+e.ts+"|"+e.u+"|"+e.cat+"|"+e.a+"|"+e.d)}
+function audit(cat,action,detail,who){
+ const w=who||ME||{u:"-",name:"-",r:"-"};
+ const prev=DB.audit.length?DB.audit[DB.audit.length-1].h:"GENESIS";
+ const e={id:DB.audit.length+1,ts:new Date().toISOString(),u:w.u,n:w.name,r:w.r||(w.admin?"Admin":"Staff"),cat,a:action,d:String(detail||"")};
+ e.h=auditHash(prev,e);DB.audit.push(e);save()}
+function verifyAudit(){let prev="GENESIS";for(let i=0;i<DB.audit.length;i++){const e=DB.audit[i];if(e.id!==i+1||auditHash(prev,e)!==e.h)return i+1;prev=e.h}return 0}
+
+/* ================= FUND LEDGER =================
+   EXP = Expenses fund, PRF = Profit fund. Cash collected each day is split by DB.fin.pct.
+   Expenses can only ever be written against EXP; no code path debits PRF. */
+const EXPCATS=["Water","Electricity","Soap & Chemicals","Wages / Salaries","Transport","Repairs & Maintenance","Rent","Airtime / Data","Food & Refreshment","Other"];
+const bal=f=>r2(DB.led.filter(e=>e.fund===f).reduce((s,e)=>s+e.amt,0));
+function cashByDay(){const m={};DB.records.forEach(r=>(r.pay||[]).forEach(p=>m[p.d]=(m[p.d]||0)+p.a));return m}
+const allocated=d=>r2(DB.led.filter(e=>e.type==="alloc"&&e.fund==="EXP"&&e.day===d).reduce((s,e)=>s+e.basis,0));
+function pendingToday(){const t=todayStr();if(t<DB.fin.start)return 0;return Math.max(0,r2((cashByDay()[t]||0)-allocated(t)))}
+function allocate(day,amt,who,mode){
+ const pct=DB.fin.pct,e=r2(amt*pct/100),pr=r2(amt-e),id=DB.led.length+1,ts=new Date().toISOString(),by=who.u;
+ DB.led.push({id,date:todayStr(),ts,fund:"EXP",amt:e,type:"alloc",day,basis:amt,pct,by,note:pct+"% of "+fmt(amt)});
+ DB.led.push({id:id+1,date:todayStr(),ts,fund:"PRF",amt:pr,type:"alloc",day,basis:0,pct,by,note:(100-pct)+"% of "+fmt(amt)});
+ audit("Finance","Day split ("+mode+")","Sales day "+day+": cash GHS "+fmt(amt)+" -> Expenses "+fmt(e)+" / Profit "+fmt(pr),who)}
+function autoAlloc(){let n=0;const t=todayStr(),cb=cashByDay();
+ Object.keys(cb).sort().forEach(d=>{if(d<DB.fin.start||d>=t)return;const u=r2(cb[d]-allocated(d));if(u>0.004){allocate(d,u,SYSTEM,"automatic");n++}});
+ if(n)save();return n}
+function splitToday(){const u=pendingToday();if(u<=0)return 0;allocate(todayStr(),u,ME,"end of day");save();return u}
+
+/* ================= AUTH ================= */
+let ME=null,lastAct=Date.now();
+const SESS="eranaSess",LOCK="eranaLock";
+function showLogin(msg){
+ document.body.classList.remove("in");$("pwbox").style.display="none";$("login").style.display="flex";
+ $("lPass").value="";$("lErr").textContent=msg||"";
+ const d=DB.users.find(u=>u.u==="admin"&&u.def&&u.must);
+ $("lHint").innerHTML=d?"First time? Log in with username <b>admin</b> and password <b>admin123</b>. You will be asked to choose a new password.":"";
+ setTimeout(()=>$("lUser").focus(),50)}
+function lockInfo(){try{return JSON.parse(localStorage.getItem(LOCK)||"{}")}catch{return{}}}
+$("lForm").onsubmit=e=>{e.preventDefault();
+ const L=lockInfo();if(L.until&&Date.now()<L.until)return $("lErr").textContent="Too many attempts. Try again in "+Math.ceil((L.until-Date.now())/1000)+" seconds.";
+ const un=$("lUser").value.trim().toLowerCase(),pw=$("lPass").value,u=U(un);
+ if(u&&hashPw(pw,u.salt)===u.hash){localStorage.removeItem(LOCK);ME=u;sessionStorage.setItem(SESS,u.u);lastAct=Date.now();audit("Auth","Login",u.must?"Logged in with temporary password":"");
+  if(u.must)openPw(true);else enter();return}
+ audit("Auth","Login failed","Username tried: "+un.slice(0,30),{u:u?u.u:"-",name:u?u.name:"(unknown)",r:"-"});
+ const n=(L.n||0)+1;if(n>=5)audit("Auth","Login locked","5 failed attempts for "+un.slice(0,30)+" - locked 60 seconds",{u:u?u.u:"-",name:u?u.name:"(unknown)",r:"-"});localStorage.setItem(LOCK,JSON.stringify(n>=5?{n:0,until:Date.now()+60000}:{n}));
+ $("lErr").textContent=n>=5?"Too many attempts. Locked for 60 seconds.":"Wrong username or password.";$("lPass").value=""};
+function logout(msg,reason){if(ME)audit("Auth",reason||"Logout","");ME=null;sessionStorage.removeItem(SESS);showLogin(msg)}
+$("btnLogout").onclick=()=>logout();
+document.addEventListener("click",e=>{const id=e.target.dataset&&e.target.dataset.eye;if(id){const i=$(id);i.type=i.type==="password"?"text":"password";e.target.textContent=i.type==="password"?"Show":"Hide"}});
+["click","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,()=>lastAct=Date.now(),{passive:true}));
+let curDay=todayStr();
+setInterval(()=>{if(ME&&todayStr()!==curDay){curDay=todayStr();autoAlloc();$("fDate").value=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"2-digit",month:"short",year:"numeric"});refreshPage()}
+ if(ME&&Date.now()-lastAct>15*60*1000)logout("You were logged out after 15 minutes of inactivity.","Auto logout (inactive 15 min)")},20000);
+
+/* change password */
+let pwForced=false;
+function openPw(forced){pwForced=forced;$("login").style.display="none";$("pwbox").style.display="flex";
+ $("pTitle").textContent=forced?"Set Your New Password":"Change Password";
+ $("pSub").textContent=forced?"Hello "+ME.name+". For security you must choose your own password before continuing.":"";
+ $("pCurWrap").style.display=forced?"none":"block";$("pCancel").style.display=forced?"none":"";
+ ["pCur","pNew","pNew2"].forEach(i=>$(i).value="");$("pErr").textContent="";setTimeout(()=>$(forced?"pNew":"pCur").focus(),50)}
+$("btnMyPw").onclick=()=>openPw(false);
+$("pCancel").onclick=()=>{$("pwbox").style.display="none"};
+$("pForm").onsubmit=e=>{e.preventDefault();
+ const cur=$("pCur").value,a=$("pNew").value,b=$("pNew2").value,err=m=>$("pErr").textContent=m;
+ if(!pwForced&&hashPw(cur,ME.salt)!==ME.hash)return err("Current password is wrong.");
+ if(a.length<6)return err("New password must be at least 6 characters.");
+ if(a!==b)return err("The two new passwords do not match.");
+ if(a.toLowerCase()===ME.u)return err("Password cannot be the same as your username.");
+ if(hashPw(a,ME.salt)===ME.hash)return err("Choose a password different from the current one.");
+ ME.salt=newSalt();ME.hash=hashPw(a,ME.salt);ME.must=false;delete ME.def;audit("Auth",pwForced?"Password set at first login":"Password changed","");
+ $("pwbox").style.display="none";
+ if(pwForced){toast("Password set. Welcome!");enter()}else toast("Password changed")};
+
+/* enter app */
+function enter(){
+ $("login").style.display="none";$("pwbox").style.display="none";document.body.classList.add("in");
+ $("whoTxt").textContent=ME.name+" ("+(ME.admin?"Admin":"Staff")+")";
+ document.querySelectorAll("[data-admin]").forEach(b=>b.style.display=ME.admin?"":"none");
+ document.querySelectorAll("[data-adminonly]").forEach(b=>b.style.display=ME.admin?"":"none");
+ autoAlloc();buildEntry();go("home")}
+function refreshPage(){const a=document.querySelector(".page.active");if(a)go(a.id)}
+function go(p){
+ if(ME)autoAlloc();
+ const btn=document.querySelector(`nav [data-p="${p}"]`);if(btn&&btn.dataset.admin&&!ME.admin)p="entry";
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.p===p));
+ document.querySelectorAll(".page").forEach(s=>s.classList.toggle("active",s.id===p));
+ if(p==="records")renderRecords();if(p==="dash")renderDash();if(p==="prices")renderPrices();if(p==="users")renderUsers();if(p==="home")renderHome();if(p==="fin")renderFin();if(p==="audit")renderAudit();window.scrollTo(0,0)}
+document.addEventListener("click",e=>{const g=e.target.dataset&&e.target.dataset.goto;if(g)go(g)});
+$("nav").onclick=e=>{const p=e.target.dataset.p;if(p)go(p)};
+
+/* ================= PRICING HELPERS ================= */
+const cat=()=>DB.cats.find(c=>c.name===$("fVtype").value);
+const pv=(k,s)=>{const v=k&&k.p[s];return typeof v==="number"?v:null};
+const plabel=(k,s)=>{const v=k&&k.p[s];return typeof v==="number"?fmt(v):(v==="NEG"?"Neg.":"-")};
+function comboPrice(c,k){if(!c.inc.length)return null;let t=0;for(const s of c.inc){const v=pv(k,s);if(v===null)return null;t+=v}return t-(+c.disc||0)}
+const unit=(k,s)=>{const cp=document.querySelector(`[data-c="${s}"]`).value;return cp!==""?+cp:pv(k,s)};
+const cunit=(k,c)=>$("fComboP").value!==""?+$("fComboP").value:comboPrice(c,k);
+
+/* ================= ENTRY ================= */
+const nextRcpt=()=>"WB-"+String(DB.seq).padStart(3,"0");
+function buildEntry(){
+ $("fDate").value=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"2-digit",month:"short",year:"numeric"});
+ $("fRcpt").value=nextRcpt();
+ $("fVtype").innerHTML='<option value="">-- select --</option>'+DB.cats.map(c=>`<option>${esc(c.name)}</option>`).join("");
+ $("svcBox").innerHTML=SERVICES.map(s=>`<div class="svc"><input type="checkbox" data-s="${s}"><b>${s}</b><input type="number" min="0" step="0.01" data-c="${s}" placeholder="-"><div class="price" data-l="${s}">0.00</div></div>`).join("");
+ $("fCombo").innerHTML='<option value="">-- Combo package (optional) --</option>'+DB.combos.filter(c=>c.name).map(c=>`<option>${esc(c.name)}</option>`).join("");
+ $("attList").innerHTML=DB.users.map(u=>`<option value="${esc(u.name)}">`).join("");
+ if(ME){$("fAtt").value=ME.name;$("fAtt").readOnly=!ME.admin}
+ calc()}
+function calc(){
+ const n=Math.max(1,parseInt($("fNum").value)||1);let tot=0;const k=cat();
+ SERVICES.forEach(s=>{const on=document.querySelector(`[data-s="${s}"]`).checked;
+  document.querySelector(`[data-c="${s}"]`).placeholder=plabel(k,s);
+  const u=on?unit(k,s):0,el=document.querySelector(`[data-l="${s}"]`);
+  el.textContent=on&&u===null?"set price":fmt((u||0)*n);tot+=(u||0)*n});
+ const cn=$("fCombo").value;let cu=0;
+ if(cn){cu=cunit(k,DB.combos.find(x=>x.name===cn))}
+ $("comboL").textContent=cn&&cu===null?"set price":fmt((cu||0)*n);tot+=(cu||0)*n;
+ const st=$("fStatus").value;const bal=st==="Paid"?0:st==="Partial"?Math.max(0,tot-(+$("fPaid").value||0)):tot;
+ $("tTotal").textContent=fmt(tot);$("tBal").textContent=fmt(bal);return{n,tot}}
+["input","change"].forEach(ev=>$("entry").addEventListener(ev,calc));
+function clearForm(){["fName","fPhone","fPlate","fPaid","fComboP"].forEach(i=>$(i).value="");
+ $("fVtype").value="";$("fStatus").value="";$("fCombo").value="";$("fNum").value=1;
+ document.querySelectorAll("[data-s]").forEach(c=>c.checked=false);document.querySelectorAll("[data-c]").forEach(c=>c.value="");
+ $("fRcpt").value=nextRcpt();calc()}
+$("btnClear").onclick=()=>{if(confirm("Clear the form?"))clearForm()};
+$("btnSubmit").onclick=()=>{
+ const{n,tot}=calc();
+ if(!$("fVtype").value)return alert("Choose a Vehicle Type.");
+ if(!$("fPlate").value.trim())return alert("Enter the Number Plate.");
+ if(!$("fAtt").value.trim())return alert("Enter the Attendant Name.");
+ const amts={};const names=[];const k=cat();let missing="";
+ SERVICES.forEach(s=>{const on=document.querySelector(`[data-s="${s}"]`).checked;const u=unit(k,s);
+  if(on&&u===null)missing=s;amts[s]=on?(u||0)*n:0;if(on)names.push(s)});
+ const cn=$("fCombo").value;let combo=0;
+ if(cn){const u=cunit(k,DB.combos.find(x=>x.name===cn));if(u===null)missing="COMBO "+cn;combo=(u||0)*n;names.push("COMBO: "+cn)}
+ if(missing)return alert("No standard price for "+missing+" on this vehicle type. Type a custom price in the box next to it.");
+ if(!names.length)return alert("Select at least one service or a combo package.");
+ if(tot<=0)return alert("Total is zero. Check prices.");
+ const st=$("fStatus").value;if(!st)return alert("Choose the Payment Status.");
+ let paid=st==="Paid"?tot:0;
+ if(st==="Partial"){paid=+$("fPaid").value||0;if(paid<=0||paid>=tot)return alert("For Partial, Amount Paid must be more than 0 and less than "+fmt(tot))}
+ const rec={date:todayStr(),rcpt:nextRcpt(),vtype:$("fVtype").value,plate:$("fPlate").value.trim().toUpperCase(),services:names.join(", "),
+  num:n,total:tot,status:st,att:$("fAtt").value.trim(),by:ME.u,name:$("fName").value.trim(),phone:$("fPhone").value.trim(),paid,balance:tot-paid,amts,combo,comboName:cn,pay:paid>0?[{d:todayStr(),a:paid,by:ME.u}]:[]};
+ DB.records.push(rec);DB.seq++;DB.last=rec.rcpt;audit("Sales","Sale recorded",rec.rcpt+" | "+rec.vtype+" "+rec.plate+" | GHS "+fmt(rec.total)+" | "+rec.status+(rec.status!=="Unpaid"?" (paid "+fmt(rec.paid)+")":""));clearForm();buildEntry();toast("Saved "+rec.rcpt);
+ if(confirm("Saved as "+rec.rcpt+". Print receipt now?"))printReceipt(rec.rcpt)};
+$("btnPrintLast").onclick=()=>{const r=prompt("Receipt number to print:",DB.last||"");if(r)printReceipt(r.trim().toUpperCase())};
+
+/* ================= RECEIPT ================= */
+function printReceipt(no){
+ const r=DB.records.find(x=>x.rcpt===no);if(!r)return alert("Receipt "+no+" not found.");
+ const lines=SERVICES.filter(s=>r.amts[s]>0).map(s=>`<div class="r"><span>${s} x${r.num}</span><span>${fmt(r.amts[s])}</span></div>`).join("")+
+  (r.combo>0?`<div class="r"><span>${esc(r.comboName)} x${r.num}</span><span>${fmt(r.combo)}</span></div>`:"");
+ $("receipt").innerHTML=`<h3>ERANA WASHING BAY</h3><div class="c">** SALES RECEIPT **</div><hr>
+ <div class="r"><span>Receipt:</span><b>${esc(r.rcpt)}</b></div><div class="r"><span>Date:</span><span>${r.date}</span></div>
+ ${r.name?`<div class="r"><span>Customer:</span><span>${esc(r.name)}</span></div>`:""}
+ <div class="r"><span>Vehicle:</span><span>${esc(r.vtype)} ${esc(r.plate)}</span></div><div class="r"><span>Attendant:</span><span>${esc(r.att)}</span></div><hr>
+ ${lines}<hr><div class="r"><b>TOTAL (GHS)</b><b>${fmt(r.total)}</b></div><div class="r"><span>Paid</span><span>${fmt(r.paid)}</span></div>
+ <div class="r"><span>Balance</span><span>${fmt(r.balance)}</span></div><div class="r"><span>Status</span><span>${r.status}</span></div><hr><div class="c">Thank you! Come again.</div>`;
+ audit("Sales","Receipt printed",no);setTimeout(()=>window.print(),100)}
+window.printReceipt=printReceipt;
+
+/* ================= RECORDS ================= */
+const filtered=(from,to)=>DB.records.filter(r=>(!from||r.date>=from)&&(!to||r.date<=to));
+function recRows(){const q=$("rSearch").value.toLowerCase(),st=$("rStatus").value;
+ return filtered($("rFrom").value,$("rTo").value).filter(r=>(!st||r.status===st)&&(!q||[r.plate,r.rcpt,r.name,r.att,r.services].join(" ").toLowerCase().includes(q))).slice().reverse()}
+function renderRecords(){
+ $("rBody").innerHTML=recRows().map(r=>`<tr><td>${r.date}</td><td>${esc(r.rcpt)}</td><td>${esc(r.vtype)}</td><td>${esc(r.plate)}</td><td>${esc(r.services)}</td><td>${r.num}</td><td>${fmt(r.total)}</td><td><span class="tag ${r.status}">${r.status}</span></td><td>${fmt(r.balance)}</td><td>${esc(r.att)}</td>
+ <td style="white-space:nowrap"><button class="btn sm b3" onclick="printReceipt('${esc(r.rcpt)}')">Print</button> ${r.balance>0?`<button class="btn sm b5" onclick="settle('${esc(r.rcpt)}')">Pay</button>`:""} ${ME.admin?`<button class="btn sm b4" onclick="delRec('${esc(r.rcpt)}')">Del</button>`:""}</td></tr>`).join("")||'<tr><td colspan="11">No records.</td></tr>'}
+["rSearch","rStatus","rFrom","rTo"].forEach(i=>$(i).addEventListener("input",renderRecords));
+window.settle=no=>{const r=DB.records.find(x=>x.rcpt===no);const a=parseFloat(prompt("Balance is "+fmt(r.balance)+". Amount received now:",r.balance));
+ if(!a||a<=0||a>r.balance+0.001)return;const amt=r2(a);r.pay=r.pay||[];r.pay.push({d:todayStr(),a:amt,by:ME.u});r.paid=r2(r.paid+amt);r.balance=Math.max(0,r2(r.total-r.paid));r.status=r.balance<=0.001?"Paid":"Partial";if(r.status==="Paid")r.balance=0;
+ audit("Sales","Payment received",no+" | GHS "+fmt(amt)+" | balance now "+fmt(r.balance));renderRecords();toast("Payment recorded")};
+window.delRec=no=>{if(!ME.admin)return;const r=DB.records.find(x=>x.rcpt===no);if(!r)return;
+ if((r.pay||[]).some(p=>p.d>=DB.fin.start&&allocated(p.d)>0))return alert("This sale's money has already been split into the Expenses and Profit funds, so it cannot be deleted. This keeps the fund balances correct.");
+ if(!confirm("Delete "+no+"? This cannot be undone."))return;DB.records=DB.records.filter(x=>x.rcpt!==no);audit("Sales","Sale deleted",no+" | "+r.vtype+" "+r.plate+" | GHS "+fmt(r.total));renderRecords()};
+$("rXlsx").onclick=()=>{const rows=recRows().reverse();
+ {audit("Data","Records exported to Excel",rows.length+" records");downloadXlsx("Erana_Records_"+todayStr()+".xlsx",[recordsSheet(rows)])}};
+
+/* ================= REPORT DATA ================= */
+const RP={g:"day"};
+const keyOf=(d,g)=>g==="day"?d:g==="month"?d.slice(0,7):d.slice(0,4);
+function nextKey(k,g){
+ if(g==="year")return String(+k+1);
+ if(g==="month"){let[y,m]=k.split("-").map(Number);m++;if(m>12){m=1;y++}return y+"-"+String(m).padStart(2,"0")}
+ const[y,m,d]=k.split("-").map(Number);return new Date(Date.UTC(y,m-1,d+1)).toISOString().slice(0,10)}
+function series(R,g){
+ const m={};R.forEach(r=>{const k=keyOf(r.date,g);const o=m[k]||(m[k]={k,sales:0,veh:0,n:0,paid:0,bal:0});o.sales+=r.total;o.veh+=r.num;o.n++;o.paid+=r.paid;o.bal+=r.balance});
+ const keys=Object.keys(m).sort();if(!keys.length)return[];
+ const out=[];let cur=keys[0],guard=0;const last=keys[keys.length-1];
+ while(cur<=last&&guard++<800){out.push(m[cur]||{k:cur,sales:0,veh:0,n:0,paid:0,bal:0});cur=nextKey(cur,g)}
+ return cur<=last?keys.map(k=>m[k]):out}
+const lab=(k,g)=>g==="day"?k.slice(8)+"/"+k.slice(5,7):g==="month"?MONTHS[+k.slice(5,7)-1]+" "+k.slice(2,4):k;
+function groupBy(R,f,val){const m={};R.forEach(r=>{const k=f(r);m[k]=(m[k]||0)+val(r)});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+function report(){
+ const from=$("dFrom").value,to=$("dTo").value,R=filtered(from,to);
+ const svc=SERVICES.map(s=>[s,sum(R,r=>r.amts[s]||0)]).concat([["COMBO",sum(R,r=>r.combo||0)]]);
+ const wkNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],wk=wkNames.map(n=>[n,0]);
+ R.forEach(r=>{const[y,m,d]=r.date.split("-").map(Number);const i=(new Date(y,m-1,d).getDay()+6)%7;wk[i][1]+=r.total});
+ return{from,to,R,svc,wk,
+  veh:groupBy(R,r=>r.vtype,r=>r.total),att:groupBy(R,r=>r.att||"-",r=>r.total),
+  cnt:s=>R.filter(r=>r.status===s).length}}
+
+/* ================= REPORTS UI ================= */
+function kpi(l,v){return `<div class="kpi"><span>${l}</span><b>${v}</b></div>`}
+function setRange(k){const t=todayStr();
+ if(k==="today")[$("dFrom").value,$("dTo").value]=[t,t];
+ else if(k==="month")[$("dFrom").value,$("dTo").value]=[t.slice(0,8)+"01",t];
+ else if(k==="year")[$("dFrom").value,$("dTo").value]=[t.slice(0,5)+"01-01",t];
+ else [$("dFrom").value,$("dTo").value]=["",""];
+ document.querySelectorAll("#segRange button").forEach(b=>b.classList.toggle("on",b.dataset.r===k))}
+$("segRange").onclick=e=>{if(e.target.dataset.r){setRange(e.target.dataset.r);renderDash()}};
+$("segGroup").onclick=e=>{if(e.target.dataset.g){RP.g=e.target.dataset.g;document.querySelectorAll("#segGroup button").forEach(b=>b.classList.toggle("on",b===e.target));renderDash()}};
+["dFrom","dTo"].forEach(i=>$(i).addEventListener("input",()=>{document.querySelectorAll("#segRange button").forEach(b=>b.classList.remove("on"));renderDash()}));
+function renderDash(){
+ if(!ME||!ME.admin)return;
+ if(!$("dFrom").value&&!$("dTo").value&&!document.querySelector("#segRange .on"))setRange("month");
+ const t=todayStr(),td=DB.records.filter(r=>r.date===t),mo=DB.records.filter(r=>r.date.startsWith(t.slice(0,7))),yr=DB.records.filter(r=>r.date.startsWith(t.slice(0,4)));
+ $("kpiToday").innerHTML=kpi("Today's Sales (GHS)",fmt(sum(td,r=>r.total)))+kpi("Today's Vehicles",sum(td,r=>r.num))+kpi("This Month (GHS)",fmt(sum(mo,r=>r.total)))+kpi("This Year (GHS)",fmt(sum(yr,r=>r.total)));
+ const P=report(),R=P.R,best=P.svc.slice().sort((a,b)=>b[1]-a[1])[0],ser=series(R,"day"),bd=ser.slice().sort((a,b)=>b.sales-a.sales)[0];
+ $("kpiRange").innerHTML=kpi("Period Sales (GHS)",fmt(sum(R,r=>r.total)))+kpi("Vehicles Washed",sum(R,r=>r.num))+kpi("Receipts",R.length)
+  +kpi("Average per Receipt",fmt(R.length?sum(R,r=>r.total)/R.length:0))+kpi("Collected (GHS)",fmt(sum(R,r=>r.paid)))+kpi("Outstanding (GHS)",fmt(sum(R,r=>r.balance)))
+  +kpi("Paid / Unpaid / Partial",P.cnt("Paid")+" / "+P.cnt("Unpaid")+" / "+P.cnt("Partial"))+kpi("Top Service",best&&best[1]>0?best[0]:"-")+kpi("Best Day",bd&&bd.sales>0?bd.k+" ("+fmt(bd.sales)+")":"-");
+ const s=series(R,RP.g);$("trendT").textContent="Sales Trend - "+{day:"Daily",month:"Monthly",year:"Yearly"}[RP.g]+" (GHS)";
+ trend("cTrend",s.map(x=>[lab(x.k,RP.g),x.sales]));
+ bars("cWk",P.wk,"#7f9fc0");bars("cSvc",P.svc,"#2E75B6");bars("cVeh",P.veh.slice(0,8),"#1F4E79");bars("cAtt",P.att.slice(0,8),"#4a90c2");
+ pie("cPay",[["Paid",P.cnt("Paid"),"#1e8449"],["Unpaid",P.cnt("Unpaid"),"#c0392b"],["Partial",P.cnt("Partial"),"#d68910"]]);renderFinReport()}
+function setup(c){const k=$(c),d=devicePixelRatio||1,w=k.clientWidth,h=k.clientHeight;k.width=w*d;k.height=h*d;const x=k.getContext("2d");x.scale(d,d);x.clearRect(0,0,w,h);return[x,w,h]}
+function bars(id,data,color){const[x,w,h]=setup(id);x.font="11px sans-serif";x.textAlign="center";
+ if(!data.length||!data.some(d=>d[1]>0)){x.fillStyle="#888";x.fillText("No data for this period",w/2,h/2);return}
+ const max=Math.max(1,...data.map(d=>d[1])),bw=(w-20)/data.length,skip=Math.ceil(data.length/8);
+ data.forEach((d,i)=>{const bh=(h-55)*d[1]/max,bx=10+i*bw+bw*.15;x.fillStyle=color;x.fillRect(bx,h-30-bh,bw*.7,bh);
+  x.fillStyle="#243447";if(data.length<=12&&d[1]>0)x.fillText(fmt(d[1]),bx+bw*.35,h-34-bh);
+  if(i%skip===0)x.fillText(String(d[0]).length>9?String(d[0]).slice(0,8)+"…":d[0],bx+bw*.35,h-12)})}
+function trend(id,data){
+ if(data.length<=40)return bars(id,data,"#2E75B6");
+ const[x,w,h]=setup(id),max=Math.max(1,...data.map(d=>d[1])),L=10,B=30,T=14,sw=(w-L-10)/(data.length-1),skip=Math.ceil(data.length/8);
+ x.beginPath();data.forEach((d,i)=>{const px=L+i*sw,py=h-B-(h-B-T)*d[1]/max;i?x.lineTo(px,py):x.moveTo(px,py)});
+ x.strokeStyle="#1F4E79";x.lineWidth=2;x.stroke();x.lineTo(L+(data.length-1)*sw,h-B);x.lineTo(L,h-B);x.closePath();x.fillStyle="rgba(46,117,182,.18)";x.fill();
+ x.fillStyle="#243447";x.font="11px sans-serif";x.textAlign="center";data.forEach((d,i)=>{if(i%skip===0)x.fillText(d[0],L+i*sw,h-10)});
+ x.textAlign="left";x.fillText("Peak: "+fmt(max),L+4,T)}
+function pie(id,data){const[x,w,h]=setup(id),tot=data.reduce((s,d)=>s+d[1],0),cx=w*.32,cy=h/2,r=Math.min(w*.28,h/2-10);
+ if(!tot){x.fillStyle="#888";x.textAlign="center";x.fillText("No data for this period",w/2,h/2);return}
+ let a=-Math.PI/2;data.forEach(d=>{const s=d[1]/tot*2*Math.PI;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,r,a,a+s);x.fillStyle=d[2];x.fill();a+=s});
+ x.font="13px sans-serif";x.textAlign="left";data.forEach((d,i)=>{x.fillStyle=d[2];x.fillRect(w*.62,30+i*26,14,14);x.fillStyle="#243447";x.fillText(`${d[0]}: ${d[1]} (${Math.round(d[1]/tot*100)}%)`,w*.62+20,42+i*26)})}
+addEventListener("resize",()=>{if($("dash").classList.contains("active"))renderDash()});
+
+/* ================= EXCEL (.xlsx written by hand, no libraries) ================= */
+const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=crcT[(c^u[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipStore(files){const enc=new TextEncoder(),chunks=[],cd=[];let off=0;
+ files.forEach(f=>{const nm=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+  const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(12,0x21,true);lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);lh.setUint16(26,nm.length,true);
+  chunks.push(new Uint8Array(lh.buffer),nm,f.data);
+  const ch=new DataView(new ArrayBuffer(46));ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(14,0x21,true);ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+  cd.push(new Uint8Array(ch.buffer),nm);off+=30+nm.length+sz});
+ const cds=cd.reduce((s,c)=>s+c.length,0),e=new DataView(new ArrayBuffer(22));
+ e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cds,true);e.setUint32(16,off,true);
+ return new Blob([...chunks,...cd,new Uint8Array(e.buffer)],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})}
+const colL=i=>{let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+const xe=s=>String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* sheet = {name, rows:[[...]], widths:[..], int:[col idx], bold:[row idx]}  row 0 = header */
+function sheetXml(sh){
+ let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>';
+ (sh.widths||[]).forEach((w,i)=>x+=`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`);
+ x+="</cols><sheetData>";
+ sh.rows.forEach((row,r)=>{x+=`<row r="${r+1}">`;
+  row.forEach((v,c)=>{if(v===null||v===undefined||v==="")return;const ref=colL(c)+(r+1),bold=(sh.bold||[]).includes(r);
+   if(r===0)x+=`<c r="${ref}" s="1" t="inlineStr"><is><t>${xe(v)}</t></is></c>`;
+   else if(typeof v==="number"){const s=(sh.int||[]).includes(c)?(bold?6:3):(bold?5:2);x+=`<c r="${ref}" s="${s}"><v>${v}</v></c>`}
+   else x+=`<c r="${ref}" s="${bold?4:0}" t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`});
+  x+="</row>"});
+ return x+"</sheetData></worksheet>"}
+function downloadXlsx(filename,sheets){
+ const enc=new TextEncoder(),f=(name,txt)=>({name,data:enc.encode(txt)}),H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ const names=sheets.map((s,i)=>s.name.replace(/[\[\]:*?\/\\]/g,"-").slice(0,31)||"Sheet"+(i+1));
+ const files=[
+  f("[Content_Types].xml",H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")+'</Types>'),
+  f("_rels/.rels",H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'),
+  f("xl/workbook.xml",H+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+names.map((n,i)=>`<sheet name="${xe(n)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join("")+'</sheets></workbook>'),
+  f("xl/_rels/workbook.xml.rels",H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join("")+`<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`),
+  f("xl/styles.xml",H+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="3" fontId="2" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>')];
+ sheets.forEach((s,i)=>files.push(f(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s))));
+ const a=document.createElement("a");a.href=URL.createObjectURL(zipStore(files));a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast("Excel file downloaded")}
+function recordsSheet(rows){
+ const body=rows.map(r=>[r.date,r.rcpt,r.vtype,r.plate,r.services,r.num,r.total,r.status,r.paid,r.balance,r.att,r.name,r.phone,r.by||""]);
+ return{name:"Records",widths:[12,11,28,14,40,10,12,10,12,12,18,18,14,14],int:[5],
+  rows:[["Date","Receipt No","Vehicle Type","Number Plate","Services","Vehicles","Total (GHS)","Status","Paid (GHS)","Balance (GHS)","Attendant","Customer","Phone","Captured By"],...body]}}
+function periodSheet(name,R,g){const s=series(R,g);
+ const rows=[[{day:"Date",month:"Month",year:"Year"}[g],"Receipts","Vehicles","Sales (GHS)","Collected (GHS)","Outstanding (GHS)"],...s.map(x=>[x.k,x.n,x.veh,x.sales,x.paid,x.bal])];
+ rows.push(["TOTAL",sum(s,x=>x.n),sum(s,x=>x.veh),sum(s,x=>x.sales),sum(s,x=>x.paid),sum(s,x=>x.bal)]);
+ return{name,widths:[14,10,10,16,16,18],int:[1,2],rows,bold:[rows.length-1]}}
+function pairSheet(name,head,data){const t=sum(data,d=>d[1]);
+ const rows=[[head,"Sales (GHS)","Share"],...data.map(d=>[d[0],d[1],t?Math.round(d[1]/t*1000)/10+"%":"0%"]),["TOTAL",t,""]];
+ return{name,widths:[40,16,10],rows,bold:[rows.length-1]}}
+$("dXlsx").onclick=()=>{
+ const P=report(),R=P.R,tot=sum(R,r=>r.total);
+ if(!R.length&&!finInRange(P.from,P.to).length)return alert("There is no data in the selected period.");
+ const best=P.svc.slice().sort((a,b)=>b[1]-a[1])[0];
+ const summary={name:"Summary",widths:[30,28],rows:[["Item","Value"],
+  ["Business","Erana Washing Bay"],["Period",(P.from||"start")+" to "+(P.to||"latest")],["Generated",new Date().toLocaleString()],["Generated by",ME.name],
+  ["Total sales (GHS)",tot],["Vehicles washed",sum(R,r=>r.num)],["Receipts",R.length],["Average per receipt (GHS)",R.length?Math.round(tot/R.length*100)/100:0],
+  ["Collected (GHS)",sum(R,r=>r.paid)],["Outstanding (GHS)",sum(R,r=>r.balance)],
+  ["Paid receipts",P.cnt("Paid")],["Unpaid receipts",P.cnt("Unpaid")],["Partial receipts",P.cnt("Partial")],["Top service",best&&best[1]>0?best[0]:"-"],...finSummaryRows(P)]};
+ const name="Erana_Sales_Report_"+(P.from||"all")+"_to_"+(P.to||"latest")+".xlsx";
+ downloadXlsx(name,[summary,periodSheet("Daily",R,"day"),periodSheet("Monthly",R,"month"),periodSheet("Yearly",R,"year"),
+  pairSheet("By Service","Service",P.svc),pairSheet("By Vehicle","Vehicle Type",P.veh),pairSheet("By Attendant","Attendant",P.att),...finSheets(P),recordsSheet(R)]);audit("Data","Excel report downloaded","Period "+(P.from||"start")+" to "+(P.to||"latest")+", "+R.length+" sales")};
+
+/* ================= PRICES (admin) ================= */
+function renderPrices(){
+ $("pBox").innerHTML=`<p style="font-size:.8rem;margin-top:0">Blank = no standard price (type a custom price at entry). Type <b>neg</b> = negotiable.</p><div class="scroll"><table><thead><tr><th>Vehicle type</th>${SERVICES.map(s=>`<th>${s}</th>`).join("")}<th></th></tr></thead><tbody>${DB.cats.map((c,i)=>`<tr><td><input data-pn="${i}" value="${esc(c.name)}" style="min-width:170px"></td>${SERVICES.map(s=>`<td><input data-pp="${i}|${s}" inputmode="decimal" style="width:68px" value="${typeof c.p[s]==="number"?c.p[s]:(c.p[s]==="NEG"?"neg":"")}"></td>`).join("")}<td><button class="btn sm b4" onclick="delCat(${i})">x</button></td></tr>`).join("")}</tbody></table></div><button class="btn b3" style="margin-top:8px;width:100%" onclick="addCat()">+ ADD VEHICLE TYPE</button>`;
+ const ref=DB.cats[0];
+ $("cBox").innerHTML=DB.combos.map((c,i)=>`<div style="border-bottom:1px solid #e3e8ee;padding:8px 0"><input data-cn="${i}" placeholder="Package name" value="${esc(c.name)}">
+ <div style="display:flex;flex-wrap:wrap;gap:10px;margin:6px 0">${SERVICES.map(s=>`<label style="margin:0"><input type="checkbox" style="width:auto" data-ci="${i}" data-cs="${s}" ${c.inc.includes(s)?"checked":""}> ${s}</label>`).join("")}</div>
+ <label>Discount (GHS)</label><input type="number" min="0" step="0.01" data-cd="${i}" value="${c.disc}"><b>${esc(ref.name)}: GHS ${comboPrice(c,ref)===null?"-":fmt(comboPrice(c,ref))}</b></div>`).join("")}
+function collectPrices(){
+ DB.cats.forEach((c,i)=>{c.name=document.querySelector(`[data-pn="${i}"]`).value.trim()||c.name;
+  SERVICES.forEach(s=>{const v=document.querySelector(`[data-pp="${i}|${s}"]`).value.trim().toLowerCase();
+   c.p[s]=v===""?null:v.startsWith("neg")?"NEG":(isFinite(+v)&&+v>=0?+v:null)})});
+ DB.combos.forEach((c,i)=>{c.name=document.querySelector(`[data-cn="${i}"]`).value.trim();c.disc=+document.querySelector(`[data-cd="${i}"]`).value||0;
+  c.inc=SERVICES.filter(s=>document.querySelector(`[data-ci="${i}"][data-cs="${s}"]`).checked)})}
+window.addCat=()=>{collectPrices();DB.cats.splice(DB.cats.length-1,0,mkCat(["New Vehicle",N,N,N,N,N]));audit("Prices","Vehicle type added","New row added");renderPrices();toast("Row added")};
+window.delCat=i=>{if(!confirm("Delete "+DB.cats[i].name+"?"))return;collectPrices();const nm=DB.cats[i].name;DB.cats.splice(i,1);audit("Prices","Vehicle type deleted",nm);renderPrices();buildEntry()};
+function diffPrices(a,b){const out=[],pf=v=>typeof v==="number"?v:(v==="NEG"?"neg":"-");
+ b.c.forEach((c,i)=>{const o=a.c[i];if(!o)return;if(o.name!==c.name)out.push('"'+o.name+'" renamed "'+c.name+'"');SERVICES.forEach(s=>{if(pf(o.p[s])!==pf(c.p[s]))out.push(c.name+" "+s+": "+pf(o.p[s])+" -> "+pf(c.p[s]))})});
+ b.m.forEach((m,i)=>{const o=a.m[i];if(o&&JSON.stringify(o)!==JSON.stringify(m))out.push("Combo '"+(m.name||o.name)+"' changed")});return out}
+$("pSave").onclick=()=>{const before=JSON.parse(JSON.stringify({c:DB.cats,m:DB.combos}));collectPrices();const ch=diffPrices(before,{c:DB.cats,m:DB.combos});
+ if(ch.length)audit("Prices","Prices changed",ch.slice(0,12).join("; ")+(ch.length>12?" ... +"+(ch.length-12)+" more":""));else save();
+ renderPrices();buildEntry();toast(ch.length?"Prices saved":"No changes")};
+
+/* ================= USERS (admin) ================= */
+function renderUsers(){
+ $("uBody").innerHTML=DB.users.map(u=>{const me=u.u===ME.u;
+  return `<tr><td>${esc(u.name)}${me?" (you)":""}</td><td>${esc(u.u)}</td><td><span class="tag ${u.admin?"Admin":"Staff"}">${u.admin?"Admin":"Staff"}</span></td><td><span class="tag ${u.must?"Temp":"Active"}">${u.must?"Must change":"Set by user"}</span></td>
+  <td style="white-space:nowrap"><button class="btn sm b3" onclick="toggleAdmin('${esc(u.u)}')">${u.admin?"Remove admin":"Make admin"}</button> <button class="btn sm b6" onclick="resetPw('${esc(u.u)}')">Reset password</button> ${me?"":`<button class="btn sm b4" onclick="delUser('${esc(u.u)}')">Delete</button>`}</td></tr>`}).join("")}
+$("uGen").onclick=()=>$("uPass").value=genPw();
+$("uAdd").onclick=()=>{const err=m=>$("uErr").textContent=m;err("");$("uCred").style.display="none";
+ const name=$("uName").value.trim(),un=$("uUser").value.trim().toLowerCase(),pw=$("uPass").value;
+ if(!name)return err("Enter the user's full name.");
+ if(!/^[a-z0-9._-]{3,20}$/.test(un))return err("Username must be 3-20 characters: letters, numbers, . _ -");
+ if(U(un))return err("That username already exists.");
+ if(pw.length<6)return err("Temporary password must be at least 6 characters (use Generate).");
+ const salt=newSalt();DB.users.push({u:un,name,admin:$("uRole").value==="1",salt,hash:hashPw(pw,salt),must:true,created:todayStr()});audit("Users","User created",un+" ("+name+") as "+($("uRole").value==="1"?"Admin":"Staff"));
+ $("uCred").style.display="block";$("uCred").innerHTML=`User created. Give these details to <b>${esc(name)}</b>:<br>Username: <b>${esc(un)}</b><br>Temporary password: <b>${esc(pw)}</b><br><small>This password is shown only now. They must change it at first login.</small>`;
+ ["uName","uUser","uPass"].forEach(i=>$(i).value="");$("uRole").value="0";renderUsers();buildEntry()};
+window.toggleAdmin=un=>{const u=U(un);if(u.admin&&adminCount()<=1)return alert("There must be at least one admin. Make another user admin first.");
+ if(u.u===ME.u&&!confirm("You are removing your own admin access. Continue?"))return;
+ u.admin=!u.admin;audit("Users",u.admin?"Made admin":"Removed admin access",u.u+" ("+u.name+")");if(u.u===ME.u){ME=u;enter();return}renderUsers();toast(u.name+(u.admin?" is now an admin":" is now staff"))};
+window.resetPw=un=>{const u=U(un);if(!confirm("Reset password for "+u.name+"? They must choose a new one at next login."))return;
+ const pw=genPw();u.salt=newSalt();u.hash=hashPw(pw,u.salt);u.must=true;delete u.def;audit("Users","Password reset",u.u+" ("+u.name+") - must change at next login");renderUsers();
+ $("uCred").style.display="block";$("uCred").innerHTML=`Password reset for <b>${esc(u.name)}</b>.<br>Username: <b>${esc(u.u)}</b><br>New temporary password: <b>${esc(pw)}</b>`;window.scrollTo(0,0)};
+window.delUser=un=>{const u=U(un);if(u.u===ME.u)return alert("You cannot delete your own account.");
+ if(u.admin&&adminCount()<=1)return alert("You cannot delete the last admin.");
+ if(!confirm("Delete user "+u.name+" ("+u.u+")? Their past sales stay in the records."))return;
+ DB.users=DB.users.filter(x=>x.u!==un);audit("Users","User deleted",un+" ("+u.name+")");renderUsers();buildEntry();toast("User deleted")};
+
+/* ================= BACKUP (admin) ================= */
+function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+$("xCsv").onclick=()=>{audit("Data","Records exported to CSV",DB.records.length+" records");const h=["Date","Receipt No","Vehicle Type","Number Plate","Services","Number of Vehicles","Total Amount","Payment Status","Attendant","Customer","Phone","Amount Paid","Balance"];
+ const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+ dl("erana_records_"+todayStr()+".csv",[h.map(q).join(",")].concat(DB.records.map(r=>[r.date,r.rcpt,r.vtype,r.plate,r.services,r.num,r.total,r.status,r.att,r.name,r.phone,r.paid,r.balance].map(q).join(","))).join("\n"),"text/csv")};
+$("xJson").onclick=()=>{audit("Data","Full backup downloaded",DB.records.length+" sales, "+DB.users.length+" users, "+DB.audit.length+" audit entries");dl("erana_backup_"+todayStr()+".json",JSON.stringify(DB),"application/json")};
+$("xFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{
+ try{const d=JSON.parse(rd.result);if(!Array.isArray(d.records)||!Array.isArray(d.cats)||!Array.isArray(d.users)||!d.users.some(u=>u.admin))throw 0;
+  if(!confirm("Replace ALL current data (sales, prices and users) with this backup?"))return;
+  DB=migrate(d);if(!DB.seq)DB.seq=1+Math.max(0,...DB.records.map(r=>parseInt(String(r.rcpt).replace(/\D/g,""))||0));audit("Data","Backup restored",DB.records.length+" sales, "+DB.users.length+" users");
+  const again=U(ME.u);if(!again){logout("Backup restored. Please log in again.","Logout (account not in restored backup)");return}ME=again;enter();toast("Backup restored")}
+ catch{alert("Invalid backup file. It must be a full backup downloaded from this app (version 2 or later).")}
+ e.target.value=""};rd.readAsText(f)};
+
+/* ================= HOME / EXPENSES / FINANCE UI ================= */
+const ruleText=()=>DB.fin.pct+"% of the cash collected each day goes to the Expenses fund and "+(100-DB.fin.pct)+"% to Profit. Expenses can only be paid from the Expenses fund - the Profit share cannot be used.";
+function fundCards(){
+ const t=todayStr(),cash=cashByDay()[t]||0,pend=pendingToday(),eBal=bal("EXP"),pBal=bal("PRF");
+ const tE=r2(DB.led.filter(e=>e.type==="alloc"&&e.fund==="EXP"&&e.day===t).reduce((s,e)=>s+e.amt,0));
+ const tP=r2(DB.led.filter(e=>e.type==="alloc"&&e.fund==="PRF"&&e.day===t).reduce((s,e)=>s+e.amt,0));
+ const sp=r2(DB.exp.filter(e=>!e.void&&e.date===t).reduce((s,e)=>s+e.amt,0));
+ let h=`<div class="fund e"><span>EXPENSES FUND - available to spend</span><b>GHS ${fmt(eBal)}</b><small>Today's share: +${fmt(tE)} &middot; Spent today: ${fmt(sp)}</small></div>`;
+ if(ME.admin)h+=`<div class="fund p"><span>PROFIT / INCOME</span><b>GHS ${fmt(pBal)}</b><small>Today's share: +${fmt(tP)} &middot; Cannot be used for expenses</small></div>`;
+ h+=`<div class="fund s"><span>TODAY'S CASH COLLECTED</span><b>GHS ${fmt(cash)}</b><small>${pend>0?"Not yet split: GHS "+fmt(pend)+" (split at end of day)":"All split into the funds"}</small></div>`;
+ return h}
+function renderHome(){
+ const t=todayStr(),td=DB.records.filter(r=>r.date===t);
+ $("homeKpi").innerHTML=kpi("Today's Sales (billed)",fmt(sum(td,r=>r.total)))+kpi("Cash Collected Today",fmt(cashByDay()[t]||0))+kpi("Vehicles Washed Today",sum(td,r=>r.num))+kpi("Owed by Customers",fmt(sum(DB.records,r=>r.balance)));
+ $("homeRule").textContent=ruleText();$("homeFunds").innerHTML=fundCards()}
+function doSplit(){const p=pendingToday();
+ if(p<=0)return toast("Nothing to split - today's takings are already split.");
+ const e=r2(p*DB.fin.pct/100);
+ if(!confirm("End the day's work? Split today's takings of GHS "+fmt(p)+":\n\nExpenses fund: GHS "+fmt(e)+"\nProfit: GHS "+fmt(r2(p-e))))return;
+ splitToday();toast("Split done");refreshPage()}
+$("homeSplit").onclick=doSplit;$("finSplit").onclick=doSplit;
+
+function renderFin(){
+ $("finFunds").innerHTML=fundCards();$("finRule").textContent=ruleText()+" Available to spend now: GHS "+fmt(bal("EXP"))+".";
+ const cur=$("eCat").value;$("eCat").innerHTML=EXPCATS.map(c=>`<option${c===cur?" selected":""}>${esc(c)}</option>`).join("");
+ renderExpTable();
+ if(ME.admin){
+  const rows=finDaily().slice().reverse().slice(0,90);
+  $("fdBody").innerHTML=rows.map(o=>`<tr><td>${o.d}</td><td>${fmt(o.cash)}</td><td>${fmt(o.toE)}</td><td>${fmt(o.toP)}</td><td>${fmt(o.spent)}</td><td>${fmt(o.eBal)}</td><td>${fmt(o.pBal)}</td></tr>`).join("")||'<tr><td colspan="7">No data yet.</td></tr>';
+  $("flBody").innerHTML=DB.led.slice().reverse().slice(0,200).map(e=>`<tr><td>${e.id}</td><td>${e.date}</td><td>${e.day||""}</td><td><span class="tag ${e.fund==="EXP"?"":"Paid"}" style="${e.fund==="EXP"?"background:#2E75B6":""}">${e.fund==="EXP"?"Expenses":"Profit"}</span></td><td>${e.type}</td><td class="${e.amt<0?"money-neg":""}">${fmt(e.amt)}</td><td>${esc(e.ref?e.ref+" - ":"")}${esc(e.note||"")}</td><td>${esc(e.by||"")}</td></tr>`).join("")||'<tr><td colspan="8">No entries yet.</td></tr>';
+  $("sPct").value=DB.fin.pct;$("sStart").value=DB.fin.start;
+  $("setNote").textContent="Currently "+DB.fin.pct+"% Expenses / "+(100-DB.fin.pct)+"% Profit. Money counted from "+DB.fin.start+". A change of split applies only to days split from now on."}}
+function renderExpTable(){
+ const f=$("efFrom").value,t=$("efTo").value,rows=DB.exp.filter(e=>(!f||e.date>=f)&&(!t||e.date<=t)).slice().reverse();
+ $("eBody").innerHTML=rows.map(e=>`<tr><td>${e.date}</td><td>${esc(e.id)}</td><td>${esc(e.cat)}</td><td>${esc(e.desc)}</td><td>${esc(e.to||"")}</td><td>${fmt(e.amt)}</td><td>${esc(e.name)}</td><td>${e.void?`<span class="tag Void" title="${esc(e.voidReason||"")}">Voided</span>`:""}</td><td>${ME.admin&&!e.void?`<button class="btn sm b4" onclick="voidExp('${esc(e.id)}')">Void</button>`:""}</td></tr>`).join("")||'<tr><td colspan="9">No expenses recorded.</td></tr>';
+ $("eTotal").textContent="Total (not voided): GHS "+fmt(r2(rows.filter(e=>!e.void).reduce((s,e)=>s+e.amt,0)))}
+["efFrom","efTo"].forEach(i=>$(i).addEventListener("input",renderExpTable));
+$("eAdd").onclick=()=>{const err=m=>$("eErr").textContent=m;err("");
+ const cat=$("eCat").value,desc=$("eDesc").value.trim(),amt=r2($("eAmt").value);
+ if(!desc)return err("Enter a description of the expense.");
+ if(!(amt>0))return err("Enter an amount greater than zero.");
+ const avail=bal("EXP");
+ if(amt>avail+0.004){const pend=pendingToday();
+  audit("Finance","Expense refused (not enough in Expenses fund)",cat+" | GHS "+fmt(amt)+" requested, "+fmt(avail)+" available");
+  return err("Not enough money in the Expenses fund. Available: GHS "+fmt(avail)+". The Profit share cannot be used for expenses."+(pend>0?" Today's takings (GHS "+fmt(pend)+") have not been split yet - press END DAY: SPLIT TODAY'S TAKINGS first.":""))}
+ const id="EX-"+String(DB.expSeq++).padStart(3,"0"),ts=new Date().toISOString();
+ DB.exp.push({id,date:todayStr(),ts,cat,desc,to:$("ePaid").value.trim(),amt,by:ME.u,name:ME.name,void:false});
+ DB.led.push({id:DB.led.length+1,date:todayStr(),ts,fund:"EXP",amt:-amt,type:"expense",ref:id,by:ME.u,note:cat+": "+desc});
+ audit("Finance","Expense recorded",id+" | "+cat+" | "+desc+" | GHS "+fmt(amt)+" | Expenses fund now "+fmt(bal("EXP")));
+ ["eDesc","eAmt","ePaid"].forEach(i=>$(i).value="");toast("Expense "+id+" recorded");renderFin()};
+window.voidExp=id=>{if(!ME.admin)return;const e=DB.exp.find(x=>x.id===id);if(!e||e.void)return;
+ const why=prompt("Reason for voiding "+id+" (GHS "+fmt(e.amt)+")?");if(why===null)return;if(!why.trim())return alert("A reason is required.");
+ e.void=true;e.voidReason=why.trim();e.voidBy=ME.u;
+ DB.led.push({id:DB.led.length+1,date:todayStr(),ts:new Date().toISOString(),fund:"EXP",amt:e.amt,type:"void",ref:id,by:ME.u,note:"Voided: "+why.trim()});
+ audit("Finance","Expense voided",id+" | GHS "+fmt(e.amt)+" returned to Expenses fund | Reason: "+why.trim());renderFin()};
+$("sPctBtn").onclick=()=>{const p=Math.round(+$("sPct").value);if(!(p>=0&&p<=100))return alert("Enter a whole number from 0 to 100.");
+ if(p===DB.fin.pct)return toast("No change");if(!confirm("Change the split to "+p+"% Expenses / "+(100-p)+"% Profit? It applies to days split from now on."))return;
+ const old=DB.fin.pct;DB.fin.pct=p;audit("Finance","Split ratio changed","Expenses "+old+"% -> "+p+"%");renderFin();toast("Split saved")};
+$("sStartBtn").onclick=()=>{const d=$("sStart").value;if(!d||d>=DB.fin.start)return alert("Choose a date earlier than the current start ("+DB.fin.start+").");
+ if(!confirm("Include all sales payments from "+d+" in the Expenses/Profit funds? They will be split now."))return;
+ const old=DB.fin.start;DB.fin.start=d;audit("Finance","Finance start date moved earlier",old+" -> "+d);autoAlloc();renderFin();toast("Earlier sales included")};
+
+function finDaily(){const m={},g=k=>m[k]||(m[k]={d:k,cash:0,toE:0,toP:0,spent:0}),cb=cashByDay();
+ Object.keys(cb).forEach(d=>{if(d>=DB.fin.start)g(d).cash=r2(cb[d])});
+ DB.led.forEach(e=>{if(e.type==="alloc"){const o=g(e.day);if(e.fund==="EXP")o.toE+=e.amt;else o.toP+=e.amt}else if(e.type==="expense")g(e.date).spent-=e.amt;else if(e.type==="void")g(e.date).spent-=e.amt});
+ const rows=Object.values(m).sort((a,b)=>a.d<b.d?-1:1);let ce=0,cp=0;
+ rows.forEach(o=>{o.toE=r2(o.toE);o.toP=r2(o.toP);o.spent=r2(o.spent);ce=r2(ce+o.toE-o.spent);cp=r2(cp+o.toP);o.eBal=ce;o.pBal=cp});return rows}
+const finInRange=(f,t)=>finDaily().filter(o=>(!f||o.d>=f)&&(!t||o.d<=t));
+function renderFinReport(){
+ const from=$("dFrom").value,to=$("dTo").value,f=finInRange(from,to),ex=DB.exp.filter(e=>!e.void&&(!from||e.date>=from)&&(!to||e.date<=to));
+ $("kpiFin").innerHTML=kpi("Cash Collected (GHS)",fmt(sum(f,o=>o.cash)))+kpi("To Expenses Fund",fmt(sum(f,o=>o.toE)))+kpi("Profit Share (GHS)",fmt(sum(f,o=>o.toP)))+kpi("Expenses Spent (GHS)",fmt(sum(ex,e=>e.amt)))+kpi("Expenses Fund Balance (now)",fmt(bal("EXP")))+kpi("Profit Balance (now)",fmt(bal("PRF")));
+ bars("cExp",groupBy(ex,e=>e.cat,e=>e.amt).slice(0,8),"#c0392b");
+ bars("cFin",[["Cash in",sum(f,o=>o.cash)],["To Expenses",sum(f,o=>o.toE)],["To Profit",sum(f,o=>o.toP)],["Spent",sum(ex,e=>e.amt)]],"#1e8449")}
+function finSummaryRows(P){const f=finInRange(P.from,P.to),ex=DB.exp.filter(e=>!e.void&&(!P.from||e.date>=P.from)&&(!P.to||e.date<=P.to));
+ return[["Cash collected (GHS)",r2(sum(f,o=>o.cash))],["Share to Expenses fund (GHS)",r2(sum(f,o=>o.toE))],["Share to Profit (GHS)",r2(sum(f,o=>o.toP))],["Expenses spent (GHS)",r2(sum(ex,e=>e.amt))],["Expenses fund balance now (GHS)",bal("EXP")],["Profit balance now (GHS)",bal("PRF")]]}
+function finSheets(P){const f=finInRange(P.from,P.to),inR=d=>(!P.from||d>=P.from)&&(!P.to||d<=P.to);
+ const d1=[["Date","Cash Collected (GHS)","To Expenses Fund (GHS)","To Profit (GHS)","Expenses Spent (GHS)","Expenses Balance (GHS)","Profit Balance (GHS)"],...f.map(o=>[o.d,o.cash,o.toE,o.toP,o.spent,o.eBal,o.pBal]),["TOTAL",r2(sum(f,o=>o.cash)),r2(sum(f,o=>o.toE)),r2(sum(f,o=>o.toP)),r2(sum(f,o=>o.spent)),"",""]];
+ const ex=DB.exp.filter(e=>inR(e.date)).map(e=>[e.id,e.date,e.cat,e.desc,e.to||"",e.amt,e.name,e.void?"VOIDED":"",e.voidReason||""]);
+ const lg=DB.led.filter(e=>inR(e.date)).map(e=>[e.id,e.date,e.day||"",e.fund==="EXP"?"Expenses":"Profit",e.type,e.amt,e.ref||"",e.by||"",e.note||""]);
+ return[{name:"Income & Expenses",widths:[14,20,22,16,20,20,18],rows:d1,bold:[d1.length-1]},
+  {name:"Expenses",widths:[10,12,22,36,18,14,18,10,28],rows:[["ID","Date","Category","Description","Paid To","Amount (GHS)","Recorded By","Status","Void Reason"],...ex]},
+  {name:"Fund Ledger",widths:[8,14,12,12,10,14,12,12,40],int:[0],rows:[["#","Date Credited","Sales Day","Fund","Type","Amount (GHS)","Reference","By","Note"],...lg]}]}
+
+/* ================= AUDIT UI ================= */
+const localDate=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+function auditRows(){const q=$("aSearch").value.toLowerCase(),u=$("aUser").value,c=$("aCat").value,f=$("aFrom").value,t=$("aTo").value;
+ return DB.audit.filter(e=>(!u||e.u===u)&&(!c||e.cat===c)&&(!f||localDate(e.ts)>=f)&&(!t||localDate(e.ts)<=t)&&(!q||(e.a+" "+e.d+" "+e.u+" "+e.n).toLowerCase().includes(q))).slice().reverse()}
+function renderAudit(){const cur=$("aUser").value,users=[...new Set(DB.audit.map(e=>e.u))].sort();
+ $("aUser").innerHTML='<option value="">All users</option>'+users.map(x=>`<option${x===cur?" selected":""}>${esc(x)}</option>`).join("");renderAuditTable()}
+function renderAuditTable(){const rows=auditRows();$("aCount").textContent=rows.length+" entries"+(rows.length>500?" (showing the latest 500 - use filters or Excel export for more)":"");
+ $("aBody").innerHTML=rows.slice(0,500).map(e=>`<tr><td style="white-space:nowrap">${new Date(e.ts).toLocaleString("en-GB")}</td><td>${esc(e.u)}${e.n&&e.n!==e.u?"<br><small>"+esc(e.n)+"</small>":""}</td><td>${esc(e.r)}</td><td><span class="tag cat">${esc(e.cat)}</span></td><td>${esc(e.a)}</td><td>${esc(e.d)}</td></tr>`).join("")||'<tr><td colspan="6">No entries.</td></tr>'}
+["aSearch","aUser","aCat","aFrom","aTo"].forEach(i=>$(i).addEventListener("input",renderAuditTable));
+$("aVerify").onclick=()=>{const bad=verifyAudit();audit("Data","Audit integrity check",bad?"FAILED at entry #"+bad:"Passed ("+DB.audit.length+" entries)");
+ alert(bad?"INTEGRITY CHECK FAILED.\nEntry #"+bad+" was altered, or earlier entries were removed.":"Integrity check passed.\nAll "+(DB.audit.length-1)+" entries are intact and in order.");renderAuditTable()};
+$("aXlsx").onclick=()=>{const rows=auditRows().slice().reverse();
+ audit("Data","Audit log exported to Excel",rows.length+" entries");
+ downloadXlsx("Erana_Audit_Log_"+todayStr()+".xlsx",[{name:"Audit Log",widths:[7,20,16,20,10,12,34,70],int:[0],rows:[["#","Date & Time","User","Name","Role","Category","Action","Details"],...rows.map(e=>[e.id,new Date(e.ts).toLocaleString("en-GB"),e.u,e.n,e.r,e.cat,e.a,e.d])]}])};
+
+/* ================= START ================= */
+(function init(){
+ const s=sessionStorage.getItem(SESS),u=s&&U(s);
+ if(u&&!u.must){ME=u;lastAct=Date.now();enter()}else showLogin()})();
+</script>
+</body>
+</html>
